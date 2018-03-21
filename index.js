@@ -4,7 +4,8 @@ const session = require('express-session')
 const MongoStore = require('connect-mongo')(session)
 const config = require('config-lite')(__dirname)
 const bodyParser = require('body-parser')
-const routes = require('./routes')
+const routes = require('./routes');
+const check = require("./middlewares/jwt").jwt;
 //const pkg = require('../package')
 //日志
 const winston = require('winston')
@@ -37,12 +38,12 @@ if (isDev) {
 }
 
 app.use(express.static(path.join(__dirname, 'public')))
-
+//app.use(/^((?!signup|signup|captcha).)+$/,check.verifyToken)
 // 生产环境增加编译后的dist静态资源
 if (!isDev) {
     app.use(express.static(path.join(__dirname, '../dist')))
 }
-
+app.use(/^((?!signup|signin|captcha).)+$/,check.verifyToken)
 app.use(session({
     name: config.session.key,
     secret: config.session.secret,

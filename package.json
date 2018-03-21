@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "express-winston": "^2.5.0",
-    "jsonwebtoken": "^8.2.0"
+    "jsonwebtoken": "^8.2.0",
+    "redis": "^2.8.0"
   }
 }

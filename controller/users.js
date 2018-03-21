@@ -1,7 +1,9 @@
 "use strict";
 const userModel = require("../models/user").User;
+const UserAttent = require("../models/userAttention").UserAttent
 const config = require('../config/default');
-const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken');
+const jwt = require("../middlewares/jwt").jwt
 //const passport = require('passport');
 const { success, fail ,Invalid} = require('../public/js/code');
 const bcrypt = require('bcrypt');
@@ -13,9 +15,10 @@ class User {
         this.getUserInfo = this.getUserInfo.bind(this);
         this.getUserByName = this.getUserByName.bind(this);
         this.create = this.create.bind(this);
-        this.setArrtent = this.setArrtent.bind(this)
+        this.setArrtent = this.setArrtent.bind(this);
+        this.getUserInfo = this.getUserInfo.bind(this)
     }
-    //登录
+    //登录  
     async signin(req, res, next) {
         var that = this
         if (!req.body.name || !req.body.passport) {
@@ -25,40 +28,17 @@ class User {
             const admin = await this.getUserByName(req.body.name);
             //如果名字存在，就不能注册,不存在才能注册
             if (admin) {
-                if (req.body.passport == admin.passport) {
-                    var token = jwt.sign({ name: admin.name }, config.secretKey, {
-                        expiresIn: 10080
-                    });
+                if (req.body.passport == admin.passport) {            
                     try {
-                        await this.update(admin._id, { token });
+                       // await this.update(admin._id, { token });
+                        var token = jwt.setToken(admin._id)
                         res.send({ code: success, message: '登录成功', token })
                     } catch (e) {
-                        res.send({ code: fail, message: e })
+                        res.send({ code: fail, message: e.message })
                     }
                 } else {
                     res.send({ code: fail, message: '账户与密码不匹配' })
                 }
-
-                // bcrypt.compare(req.body.passport, admin.password, (err, res) => {
-                //     if (err) {
-                //         console.log("bcrypt对比失败",err)
-                //         res.send({ code: fail, message: '已存在用户，请更换名称' })
-                //     }
-                //     // res == true 输入的密码与保存的密码一致
-                //     if (res) {
-                //         var token = jwt.sign({name: user.name}, config.secret,{
-                //             expiresIn: 10080
-                //           });
-                //         admin.token = token;
-
-                //        // await update(admin)
-                //         res.send({ code: success, message: '登录成功' })
-                //     } else {
-                //         res.send({ code: fail, message: '已存在用户，请更换名称' })
-
-                //     }
-                // });
-
                 res.send({ code: fail, message: '已存在用户，请更换名称' })
 
             } else {
@@ -69,27 +49,48 @@ class User {
 
         }
     }
+    async aaa(req, res, next){
+        //res.send({code:2});
+            var Id =  "5ab2121b1436603fc4d4b5ce"
+       console.log("id",req.body._id)
+       try{
+        var user = await this.getUserById(Id).select({"name": 1, "_id": 0});
+        res.send({code:success,message:"success",data:user})
+       }catch(e){
+        res.send({ code: fail, message: e.message })
+       } 
+    }
+    //获取个人信息
+    async getUserInfo(req,res,next){
+     
+       var Id = req.body._id;
+       try{
+        var user = await this.getUserById(Id).select({"name": 1, "_id": 0});
+        res.send({code:success,message:"success",data:user})
+       }catch(e){
+        res.send({ code: fail, message: e.message })
+       }    
+    }
     //注册
     async signup(req, res, next) {
-        console.log(this)
         if (!req.body.name || !req.body.passport) {
             res.send({ code: fail, message: '请输入您的账号密码.' })
         } else {
-            //查找用户名称
+            //查找用户名称1
             const admin = await this.getUserByName(req.body.name);
             //如果名字存在，就不能注册,不存在才能注册
             if (admin) {
                 res.send({ code: fail, message: '已存在用户，请更换名称' })
             } else {
-                var token = jwt.sign({ name: req.body.name }, config.secretKey, {
-                    expiresIn: 10080
-                });
-                const newUser = { name: req.body.name, passport: req.body.passport, token: token,attention:[] };
+            
+                const newUser = { name: req.body.name, passport: req.body.passport };
 
                 try {
                     //await this.create(newUser);
-                    await userModel.insert(newUser);
-                    console.log(await userModel.findOne().addCreatedAt())
+                 
+                   var user =  await userModel.insert(newUser);
+                   console.log("user",user)
+                   var token = await jwt.setToken(user.ops[0]._id)     
                     res.send({ code: success, message: '注册成功', token: token })
                 } catch (err) {
                     console.log(err)
@@ -109,10 +110,12 @@ class User {
         } catch (e) {
             res.send({ code: fail, message: e.message, })
         }
+
         const admin = await this.tokenToUser(token);
-        if(admin){
+        const otherID = await this.getUserById(params.userId);
+        if(admin&&otherId){
             try{
-                await userModel.update({ _id: admin._id }, { $addToSet: { attention:params.userId } });
+                await UserAttent.update({ userId: admin._id,otherID });
                 res.send({ code: success, message: '关注成功' })
             }catch(e){
                 res.send({ code: fail, message: e.message, })
@@ -128,17 +131,13 @@ class User {
         var token = req.headers['token'];
             var list = [];
             try{
-               list = await userModel.findOne({ token },{name:1});
+               list = await userModel.findOne({ token }).populate({path:"_id"},{name: 1, _id: 0},"User");
                res.send({ code: success, message: "成功",data:list })
             }catch(e){
                 res.send({ code: fail, message: e.message, })
             }
            
         
-    }
-    //获取用户信息
-    async getUserInfo(req, res, next) {
-
     }
     create(user) {
         //console.log("userModel",userModel)

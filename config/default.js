@@ -5,6 +5,10 @@ module.exports = {
         key: 'blog',
         maxAge: 2592000000,
     },
+    redis: {  
+        "host": "127.0.0.1",  
+        "port": 6379  
+    },
     secretKey:"aaaaaaaaaaaaaaaaaaa",
     mongodb: 'mongodb://localhost:27017/xxxx',
     'client_id': 'e6659c401d71d105072e',

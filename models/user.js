@@ -10,17 +10,9 @@ const User = mongolass.model('User', {
     passport: {
         type: 'string'
     },
-    token: {
-        type: 'string'
-    },
     addCreatedAt:{
         type: 'string'
-    },
-    attention:[{type: Mongolass.Types.ObjectId }]
-    
-  
-  
-    
+    }
 });
 User.plugin('bcryptPassword', {
     beforeInsert: async function() {
