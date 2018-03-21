@@ -4,7 +4,8 @@
   "description": "demo",
   "main": "index.js",
   "scripts": {
-    "test": "supervisor index"
+    "test": "supervisor index",
+    "pm":"pm2 start index.js"
   },
   "keywords": [
     "token"

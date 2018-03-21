@@ -31,7 +31,7 @@ class User {
                 if (req.body.passport == admin.passport) {            
                     try {
                        // await this.update(admin._id, { token });
-                        var token = jwt.setToken(admin._id)
+                        var token =await jwt.setToken(admin._id)
                         res.send({ code: success, message: '登录成功', token })
                     } catch (e) {
                         res.send({ code: fail, message: e.message })
@@ -102,7 +102,6 @@ class User {
     async setArrtent(req, res, next) {
         // 校验参数
         var params = req.params;
-        var token = req.headers['token'];
         try {
             if (!params.userId.length) {
                 throw new Error('请填写userID')
@@ -111,11 +110,12 @@ class User {
             res.send({ code: fail, message: e.message, })
         }
 
-        const admin = await this.tokenToUser(token);
-        const otherID = await this.getUserById(params.userId);
-        if(admin&&otherId){
+        const admin = req.body._id;
+
+        const otherID = params.userId;
+        if(admin&&otherID){
             try{
-                await UserAttent.update({ userId: admin._id,otherID });
+                await UserAttent.insert({ userId: admin,otherID });
                 res.send({ code: success, message: '关注成功' })
             }catch(e){
                 res.send({ code: fail, message: e.message, })
@@ -128,10 +128,11 @@ class User {
     }
     //获取所关注人的信息
     async getArrtentList(req, res, next){
-        var token = req.headers['token'];
+            const admin = req.body._id;
+            console.log("admin1",admin)
             var list = [];
             try{
-               list = await userModel.findOne({ token }).populate({path:"_id"},{name: 1, _id: 0},"User");
+               list = await UserAttent.find({ userId:admin }).select({otherID:1,_id:0}).populate({path:"otherID",select: {name: 1},model:"User"});
                res.send({ code: success, message: "成功",data:list })
             }catch(e){
                 res.send({ code: fail, message: e.message, })
