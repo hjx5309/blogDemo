@@ -49,17 +49,6 @@ class User {
 
         }
     }
-    async aaa(req, res, next){
-        //res.send({code:2});
-            var Id =  "5ab2121b1436603fc4d4b5ce"
-       console.log("id",req.body._id)
-       try{
-        var user = await this.getUserById(Id).select({"name": 1, "_id": 0});
-        res.send({code:success,message:"success",data:user})
-       }catch(e){
-        res.send({ code: fail, message: e.message })
-       } 
-    }
     //获取个人信息
     async getUserInfo(req,res,next){
      
