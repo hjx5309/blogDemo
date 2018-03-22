@@ -6,6 +6,7 @@ const config = require('config-lite')(__dirname)
 const bodyParser = require('body-parser')
 const routes = require('./routes');
 const check = require("./middlewares/jwt").jwt;
+const {tools} = require("./middlewares/tool")
 //const pkg = require('../package')
 //日志
 const winston = require('winston')
@@ -43,7 +44,8 @@ app.use(express.static(path.join(__dirname, 'public')))
 if (!isDev) {
     app.use(express.static(path.join(__dirname, '../dist')))
 }
-app.use(/^((?!signup|signin|captcha).)+$/,check.verifyToken)
+app.use("/user",tools)
+app.use(/^((?!signup|signin|codeTotoken|public).)+$/,check.verifyToken)
 app.use(session({
     name: config.session.key,
     secret: config.session.secret,

@@ -6,8 +6,9 @@ const check = require("../middlewares/jwt").jwt;
 // const path = require('path')
 // const fs = require('fs')
 // const multer = require('multer')
+//微信登录
+router.post("/codeTotoken",UserModel.weChat)
 //注册
-
 router.post("/signup",UserModel.signup)
 //登录
 router.post("/signin",UserModel.signin)

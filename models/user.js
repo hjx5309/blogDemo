@@ -10,6 +10,12 @@ const User = mongolass.model('User', {
     passport: {
         type: 'string'
     },
+    openId:{
+        type: 'string'
+    },
+    avatarUrl:{
+        type: 'string'
+    },
     addCreatedAt:{
         type: 'string'
     }

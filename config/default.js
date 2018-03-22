@@ -9,6 +9,8 @@ module.exports = {
         "host": "127.0.0.1",  
         "port": 6379  
     },
+    appId:"123456",
+    appsecret:"456789",
     secretKey:"aaaaaaaaaaaaaaaaaaa",
     mongodb: 'mongodb://localhost:27017/xxxx',
     'client_id': 'e6659c401d71d105072e',
